@@ -6,7 +6,7 @@
 # ## Get the Data
 # The data is already provided for you.  You'll be using a subset of the original dataset.  It consists of only the scenes in Moe's Tavern.  This doesn't include other versions of the tavern, like "Moe's Cavern", "Flaming Moe's", "Uncle Moe's Family Feed-Bag", etc..
 
-# In[2]:
+# In[194]:
 
 
 """
@@ -17,6 +17,7 @@ import helper
 data_dir = './data/simpsons/moes_tavern_lines.txt'
 text = helper.load_data(data_dir)
 # Ignore notice, since we don't use it for analysing the data
+
 text = text[81:]
 
 
@@ -387,7 +388,13 @@ tests.test_build_nn(build_nn)
 # ]
 # ```
 
-# In[42]:
+# In[223]:
+
+
+print(128*35)
+
+
+# In[245]:
 
 
 def get_batches(int_text, batch_size, seq_length):
@@ -414,12 +421,15 @@ def get_batches(int_text, batch_size, seq_length):
         # The features
         x = arr[:, n : n + seq_length]
         # The targets, shifted by one
+        y_ = int_text[n + seq_length:n + seq_length + arr.shape[1] * batch_size-1:arr.shape[1]]
         y = np.zeros_like(x)
-        y[:, :-1], y[:, -1] = x[:, 1:], x[:, 0]
+        y[:, :-1]= x[:, 1:]
+        for row in range(batch_size):
+            y[row, -1] = y_[row]
         batches.append([x,y])
         #yield x, y
     batches=np.array(batches)
-    
+
     return batches
 
 
@@ -441,23 +451,23 @@ tests.test_get_batches(get_batches)
 # - Set `learning_rate` to the learning rate.
 # - Set `show_every_n_batches` to the number of batches the neural network should print progress.
 
-# In[186]:
+# In[280]:
 
 
 # Number of Epochs
-num_epochs = 1000
+num_epochs = 2000
 # Batch Size
-batch_size = 128
+batch_size = 2048
 # RNN Size
-rnn_size = 128
+rnn_size = 512
 # Embedding Dimension Size
-embed_dim = 30
+embed_dim = 256
 # Sequence Length
-seq_length = 15
+seq_length = 20
 # Learning Rate
-learning_rate = 0.005
+learning_rate = 0.001
 # Show stats for every n number of batches
-show_every_n_batches = 100
+show_every_n_batches = 10
 
 """
 DON'T MODIFY ANYTHING IN THIS CELL THAT IS BELOW THIS LINE
@@ -468,7 +478,7 @@ save_dir = './save'
 # ### Build the Graph
 # Build the graph using the neural network you implemented.
 
-# In[187]:
+# In[281]:
 
 
 """
@@ -505,7 +515,7 @@ with train_graph.as_default():
 # ## Train
 # Train the neural network on the preprocessed data.  If you have a hard time getting a good loss, check the [forms](https://discussions.udacity.com/) to see if anyone is having the same problem.
 
-# In[188]:
+# In[282]:
 
 
 """
@@ -544,7 +554,7 @@ with tf.Session(graph=train_graph) as sess:
 # ## Save Parameters
 # Save `seq_length` and `save_dir` for generating a new TV script.
 
-# In[189]:
+# In[283]:
 
 
 """
@@ -556,7 +566,7 @@ helper.save_params((seq_length, save_dir))
 
 # # Checkpoint
 
-# In[190]:
+# In[284]:
 
 
 """
@@ -581,7 +591,7 @@ seq_length, load_dir = helper.load_params()
 # 
 # Return the tensors in the following tuple `(InputTensor, InitialStateTensor, FinalStateTensor, ProbsTensor)` 
 
-# In[191]:
+# In[285]:
 
 
 def get_tensors(loaded_graph):
@@ -607,7 +617,7 @@ tests.test_get_tensors(get_tensors)
 # ### Choose Word
 # Implement the `pick_word()` function to select the next word using `probabilities`.
 
-# In[192]:
+# In[286]:
 
 
 def pick_word(probabilities, int_to_vocab):
@@ -635,7 +645,7 @@ tests.test_pick_word(pick_word)
 # ## Generate TV Script
 # This will generate the TV script for you.  Set `gen_length` to the length of TV script you want to generate.
 
-# In[193]:
+# In[287]:
 
 
 gen_length = 200
